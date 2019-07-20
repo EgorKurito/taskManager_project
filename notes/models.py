@@ -24,7 +24,7 @@ class Note(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        default="general",
+        default="Note",
         on_delete=models.CASCADE,
     )
 

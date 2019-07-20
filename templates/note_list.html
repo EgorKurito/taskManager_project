@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Notes{% endblock %}
+
+{% block content %}
+{% for note in object_list %}
+<div class="card">
+  <div class="card-header">
+    <span class="font-weight-bold">{{ note.title }}</span> &middot;
+    <span class="text-muted">by {{ note.author }} | {{ article.date }}</s\ pan>
+  </div>
+  <div class="card-body">
+    {{ note.content }} </div>
+  <div class="card-footer text-center text-muted">
+    <a href="{% url 'note_edit' note.pk %}">Edit</a> |
+    <a href="{% url 'note_delete' note.pk %}">Delete</a> </div>
+</div>
+</div>
+<br />
+{% endfor %}
+{% endblock content %}
