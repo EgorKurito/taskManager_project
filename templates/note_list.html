@@ -1,21 +1,86 @@
-{% extends 'base.html' %}
-
-{% block title %}Notes{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-{% for note in object_list %}
-<div class="card">
-  <div class="card-header">
-    <span class="font-weight-bold">{{ note.title }}</span> &middot;
-    <span class="text-muted">by {{ note.author }} | {{ article.date }}</s\ pan>
+
+
+<div class="container">
+  <form method="post">
+    {% csrf_token %}
+    <div class="sidebar-nav-fixed affix">
+      <div class="well">
+
+        <div name="sort" , id="sort">
+          <button value="-publish" name="sort" type="submit">Дата(по убыванию)</button>
+          <button value="publish" name="sort" type="submit">Дата(по возрастанию)</button>
+          <button value="-favourite" name="sort" type="submit">Избранное</button>
+          <button value="category" name="sort" type="submit">Категории</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<form method="post">
+  {% csrf_token %}
+  <div class="sidebar-nav-fixed affix">
+    <div class="well">
+
+      <select name=filter>
+        <option disabled>Выберите</option>
+        <option value="all">Все</option>
+        <option value="favourite">Избранное</option>
+        {% for obj in cat_list %}
+        <option value="cat{{ obj }}">{{ obj }}</option>
+        {% endfor %}
+        {% for obj in date_list %}
+        <option value="{{ obj|date:"Y-m-d" }}">{{ obj }}</option>
+        {% endfor %}
+      </select>
+      <input type="submit" value="Отправить">
+
+    </div>
   </div>
-  <div class="card-body">
-    {{ note.content }} </div>
-  <div class="card-footer text-center text-muted">
-    <a href="{% url 'note_edit' note.pk %}">Edit</a> |
-    <a href="{% url 'note_delete' note.pk %}">Delete</a> </div>
+</form>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="sidebar-nav-fixed affix">
+    <div class="well">
+      <input type="text" name="query" id="query" placeholder="Поиск заметки" />
+      <input type="submit" value="Отправить">
+    </div>
+  </div>
+</form>
+
+<div class="content">
+  <div id="list" class="col-sm-6 col-sm-offset-3">
+    {% if object_list|length > 0 %}
+
+    {% for obj in object_list %}
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="thumbnail">
+          <div class="caption">
+            <h3><a href="{{ obj.get_absolute_url }}">{{ obj.title }}</a></h3>
+            <p>{{ obj.content|linebreaks|truncatechars:120 }}</p>
+            <small>{{ obj.publish }}</small>
+            <p>Категория: {{ obj.category }}</p>
+            {% if obj.favourite %}
+            <p>Избранное</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <hr />
+    </div>
+
+    {% endfor %}
+    {% else %}
+    <p>Заметки не найдены</p>
+    {% endif %}
+  </div>
 </div>
-</div>
-<br />
-{% endfor %}
+
 {% endblock content %}

@@ -18,7 +18,7 @@ class Note(models.Model):
     favourite = models.BooleanField(default=False)
     publish = models.DateField(auto_now=False, auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, auto_now_add=False)
-    author = models.ForeignKey(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
@@ -26,8 +26,8 @@ class Note(models.Model):
         Category,
         default="Note",
         on_delete=models.CASCADE,
+        related_query_name='category',
     )
-
 
     def __unicode__(self):
         return self.title
