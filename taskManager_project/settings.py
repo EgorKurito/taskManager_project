@@ -131,3 +131,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_URL = '/static/'
 
 ALLOWED_HOSTS = ['*']
+import django_heroku
+django_heroku.settings(locals())
