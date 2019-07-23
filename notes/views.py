@@ -7,62 +7,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from django.template.context_processors import csrf
-from django.shortcuts import render
+from django.shortcuts import render,render_to_response
 
 from . import models
 from django.db.models import Q
-
-
-def note_list(request):
-    if not request.user.is_active:
-        return HttpResponseRedirect(reverse('login'))
-    else:
-        queryset_list = models.Note.objects.filter(user=request.user)
-        context = {}
-        context.update(csrf(request))
-
-        filter_name = request.POST.get('filter')
-        sort_name = request.POST.get('sort')
-        query = request.POST.get('query')
-
-
-        category_list = []
-        date_list = []
-        for note in queryset_list:
-            if note.category not in category_list:
-                category_list.append(note.category)
-        for note in queryset_list:
-            if note.publish not in date_list:
-                date_list.append(note.publish)
-
-        if sort_name:
-            queryset_list = queryset_list.order_by(sort_name)
-
-        if filter_name:
-            if filter_name == "all":
-                queryset_list = queryset_list.all()
-            elif filter_name == "favourite":
-                queryset_list = queryset_list.filter(favourite=True)
-            elif filter_name[0] == "cat":
-                queryset_list = queryset_list.filter(category__name=filter_name[1:])
-            else:
-                queryset_list = queryset_list.filter(publish=filter_name)
-
-        if query:
-            queryset_list = queryset_list.filter(Q(title__icontains=query) | Q(content__icontains=query)).distinct()
-
-
-        page_request_var = 'page'
-        context = {
-            "query": query,
-            "cat_list": category_list,
-            "date_list": date_list,
-            "object_list": queryset_list,
-            "sort": sort_name,
-            "filter": filter_name,
-            "page_request_var": page_request_var
-        }
-        return render(request, "note_list.html", context)
 
 
 class NoteDetailView(LoginRequiredMixin, DetailView):
@@ -93,3 +41,97 @@ class NoteCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
+
+def note_list(request):
+    if not request.user.is_active:
+        return HttpResponseRedirect(reverse('login'))
+    else:
+        queryset_list = models.Note.objects.filter(user=request.user)
+        context = {}
+        context.update(csrf(request))
+
+        category_list = []
+        date_list = []
+        for note in queryset_list:
+            if note.category not in category_list:
+                category_list.append(note.category)
+        for note in queryset_list:
+            if note.publish not in date_list:
+                date_list.append(note.publish)
+
+        filter_name = request.POST.get('filter')
+        sort_name = request.POST.get('sort')
+        query = request.POST.get('query')
+
+        if sort_name:
+            queryset_list = queryset_list.order_by(sort_name)
+
+        if filter_name:
+            if filter_name == "all":
+                queryset_list = queryset_list.all()
+            elif filter_name == "favourite":
+                queryset_list = queryset_list.filter(favourite=True)
+            elif filter_name[:3] == "cat":
+                queryset_list = queryset_list.filter(category__name=filter_name[3:])
+            else:
+                queryset_list = queryset_list.filter(publish=filter_name)
+
+        if query:
+            queryset_list = queryset_list.filter(Q(title__icontains=query) | Q(content__icontains=query)).distinct()
+
+
+        page_request_var = 'page'
+        context = {
+            "query": query,
+            "cat_list": category_list,
+            "date_list": date_list,
+            "object_list": queryset_list,
+            "sort": sort_name,
+            "filter": filter_name,
+            "page_request_var": page_request_var
+        }
+        return render(request, "note_list.html", context)
+
+
+def filter_list(request):
+    queryset_list = models.Note.objects.filter(user=request.user)
+    context = {}
+    context.update(csrf(request))
+
+    category_list = []
+    date_list = []
+    for note in queryset_list:
+        if note.category not in category_list:
+            category_list.append(note.category)
+    for note in queryset_list:
+        if note.publish not in date_list:
+            date_list.append(note.publish)
+
+    filter_name = request.POST.get('filter')
+    sort_name = request.POST.get('sort')
+    query = request.POST.get('query')
+
+    if sort_name:
+        queryset_list = queryset_list.order_by(sort_name)
+
+    if filter_name:
+        if filter_name == "all":
+            queryset_list = queryset_list.all()
+        elif filter_name == "favourite":
+            queryset_list = queryset_list.filter(favourite=True)
+        elif filter_name[:3] == "cat":
+            queryset_list = queryset_list.filter(category__name=filter_name[3:])
+        else:
+            queryset_list = queryset_list.filter(publish=filter_name)
+
+    if query:
+        queryset_list = queryset_list.filter(Q(title__icontains=query) | Q(content__icontains=query)).distinct()
+
+
+    page_request_var = 'page'
+    context = {
+        "object_list": queryset_list,
+        "page_request_var": page_request_var
+        }
+    return render_to_response("list.html", context)    

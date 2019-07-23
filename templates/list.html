@@ -1,0 +1,26 @@
+{% if object_list|length > 0 %}
+
+{% for obj in object_list %}
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="thumbnail">
+      <div class="caption">
+        <h3><a href="{{ obj.get_absolute_url }}">{{ obj.title }}</a></h3>
+        <p>{{ obj.content|linebreaks|truncatechars:120 }}</p>
+        <small>{{ obj.publish }}</small>
+        <p>Категория: {{ obj.category }}</p>
+        {% if obj.favourite %}
+        <p>Избранное</p><br>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <hr />
+</div>
+
+{% endfor %}
+
+{% else %}
+<p>Заметки не найдены</p>
+{% endif %}
